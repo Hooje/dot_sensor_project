@@ -1,0 +1,25 @@
+digraph Tree {
+node [shape=box, style="rounded", color="black", fontname=helvetica] ;
+edge [fontname=helvetica] ;
+0 [label="3_y_sin <= -0.9\ngini = 0.8\nsamples = 1200\nvalue = [200, 200, 200, 200, 200, 200]"] ;
+1 [label="gini = 0.0\nsamples = 200\nvalue = [200, 0, 0, 0, 0, 0]"] ;
+0 -> 1 [labeldistance=2.5, labelangle=45, headlabel="True"] ;
+2 [label="add_2_y_sin <= -0.7\ngini = 0.8\nsamples = 1000\nvalue = [0, 200, 200, 200, 200, 200]"] ;
+0 -> 2 [labeldistance=2.5, labelangle=-45, headlabel="False"] ;
+3 [label="gini = 0.0\nsamples = 200\nvalue = [0, 0, 0, 200, 0, 0]"] ;
+2 -> 3 ;
+4 [label="add_2_x_cos <= 0.1\ngini = 0.8\nsamples = 800\nvalue = [0, 200, 200, 0, 200, 200]"] ;
+2 -> 4 ;
+5 [label="add_5_y_sin <= -0.3\ngini = 0.5\nsamples = 400\nvalue = [0, 200, 0, 0, 200, 0]"] ;
+4 -> 5 ;
+6 [label="gini = 0.0\nsamples = 200\nvalue = [0, 200, 0, 0, 0, 0]"] ;
+5 -> 6 ;
+7 [label="gini = 0.0\nsamples = 200\nvalue = [0, 0, 0, 0, 200, 0]"] ;
+5 -> 7 ;
+8 [label="add_5_x_cos <= 0.1\ngini = 0.5\nsamples = 400\nvalue = [0, 0, 200, 0, 0, 200]"] ;
+4 -> 8 ;
+9 [label="gini = 0.0\nsamples = 200\nvalue = [0, 0, 0, 0, 0, 200]"] ;
+8 -> 9 ;
+10 [label="gini = 0.0\nsamples = 200\nvalue = [0, 0, 200, 0, 0, 0]"] ;
+8 -> 10 ;
+}
