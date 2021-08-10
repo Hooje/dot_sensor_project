@@ -70,13 +70,15 @@ if __name__ == '__main__':
     
     #with open(lazy_complete_path('xxx'), 'r') as f:
     #way=["vaccume","pick_high","hair","pick"]
-    way=["0","1","2","3","4","5","6"]#,"7","8","9","10","11","12","13","14","15","16","17","18","19","20"]
+    way=["0","1","2","3","4"]#,"5","6"]#,"7","8","9","10","11","12","13","14","15","16","17","18","19","20"]
     #way=["curve","lie","sit","tilt","zero","stand1","stand2","stand3","stand4","stand5"]
     #way=["sit"]
     for i in range(len(way)):
         source=way[i]
         if iszero == 1:
             source="zero"
-        src="../0808/me_q/"+source
+        src="../stand_train/"+source
+        rename_sit_stand(src)
+        src="../stand_test/"+source
         rename_sit_stand(src)
         

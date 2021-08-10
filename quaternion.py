@@ -3,7 +3,7 @@
 from pyquaternion import Quaternion
 import math 
 import quaternion
-
+import numpy as np
 def normm(qua):
    sum=0
    for i in range(4):
@@ -34,6 +34,16 @@ def euler_from_quaternion(q):
         yaw_z = math.atan2(t3, t4)
      
         return roll_x/math.pi*180, pitch_y/math.pi*180, yaw_z/math.pi*180 
+def quaternion_from_euler(e):
+    #Z, Y, X (yaw, pitch, roll),
+    roll, pitch, yaw = e[0]*math.pi/180, e[1]*math.pi/180,e[2]*math.pi/180
+
+    qx = np.sin(roll/2) * np.cos(pitch/2) * np.cos(yaw/2) - np.cos(roll/2) * np.sin(pitch/2) * np.sin(yaw/2)
+    qy = np.cos(roll/2) * np.sin(pitch/2) * np.cos(yaw/2) + np.sin(roll/2) * np.cos(pitch/2) * np.sin(yaw/2)
+    qz = np.cos(roll/2) * np.cos(pitch/2) * np.sin(yaw/2) - np.sin(roll/2) * np.sin(pitch/2) * np.cos(yaw/2)
+    qw = np.cos(roll/2) * np.cos(pitch/2) * np.cos(yaw/2) + np.sin(roll/2) * np.sin(pitch/2) * np.sin(yaw/2)
+
+    return [qw, qx, qy, qz]#, qw]
 
 def qua_to_angle(q1,q2):
    n_q1=normm(q1)
@@ -75,14 +85,20 @@ def cal_angle(q1, q2):
    print(f'angle = {math.acos(q1[0]*q2[0] + q1[1]*q2[1] +q1[2]*q2[2] + q1[3]*q2[3])*180/math.pi} * 2 \n')
 
 
-q1 = [0.41107142,  0.56609285,  -0.36198977, 0.61606324]
+q1 = [0.9897052,   0.021346753, -0.14117369, -0.009901799 ]#2.755847931 -16.25458527   -1.596380353
 q2 = [0.3116954,   0.65297955,  -0.39905578, 0.5632197]
+a, b,c = euler_from_quaternion(q1)
+#a, b,c=2.755847931, -16.25458527,   -1.596380353
+print(a,b,c)
+print(euler_from_quaternion(quaternion_from_euler([a,b,c])))
+
+input()
 qua_to_angle(q1,q2)
 cal_angle(q1,q2)
 
 
 exit(0)
-q1 = [ 0.28875265,  -0.003871514,   -0.003870664,   -0.9573881 ]
+q1 = [0.9897052,   0.021346753, -0.14117369, -0.009901799 ]#2.755847931 -16.25458527   -1.596380353
 q2 = [0.29726613,  -0.002300085,   -0.007810124,   -0.95475996]
 qua_to_angle(q1,q2)
 cal_angle(q1,q2)

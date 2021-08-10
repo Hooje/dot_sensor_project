@@ -4,8 +4,8 @@ from numpy import ravel
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import confusion_matrix
 
-way = [0,1,2,3,4,5,6]
-num_row = 5
+way = [0,1,2,3,4]#,5,6]
+num_row = 2
 case = 2 # case = 2 mean add difference between three sensor
 number = 10
 
@@ -39,7 +39,10 @@ if __name__ == '__main__':
     X2 = data2[:, :y_th-1]  # select columns 1 through end
     y2 = data2[:, y_th]   # select column 0
 
-    input(type(X))
+    #print(X)
+    #print('\n\n\n\n\n')
+    #print(X2)
+    #input(type(X))
     #validation_score=0
     test_score=0
 
