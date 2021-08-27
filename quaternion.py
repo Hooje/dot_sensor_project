@@ -34,6 +34,7 @@ def euler_from_quaternion(q):
         yaw_z = math.atan2(t3, t4)
      
         return roll_x/math.pi*180, pitch_y/math.pi*180, yaw_z/math.pi*180 
+
 def quaternion_from_euler(e):
     #Z, Y, X (yaw, pitch, roll),
     roll, pitch, yaw = e[0]*math.pi/180, e[1]*math.pi/180,e[2]*math.pi/180
@@ -43,9 +44,9 @@ def quaternion_from_euler(e):
     qz = np.cos(roll/2) * np.cos(pitch/2) * np.sin(yaw/2) - np.sin(roll/2) * np.sin(pitch/2) * np.cos(yaw/2)
     qw = np.cos(roll/2) * np.cos(pitch/2) * np.cos(yaw/2) + np.sin(roll/2) * np.sin(pitch/2) * np.sin(yaw/2)
 
-    return [qw, qx, qy, qz]#, qw]
+    return [qw, qx, qy, qz]
 
-def qua_to_angle(q1,q2):
+def qua_to_angle(q1,q2):  #how to from q1 to q2   -->　q1 * z = q2
    n_q1=normm(q1)
    #print(f'norm = {n_q1}')
    n_q2=normm(q2)
@@ -58,14 +59,23 @@ def qua_to_angle(q1,q2):
 
    y = Quaternion(q2)
    #conj_quaternion = my_quaternion.conjugate
-   z = x.conjugate *y
-   
+   zc = x.conjugate *y
+   print(type(q1))
+   a=q1[0]; b=-q1[1]; c=-q1[2]; d=-q1[3]
+   e=q2[0]; f=q2[1]; g=q2[2]; h=q2[3]
+   z = [(a*e - b*f -c* g- d*h), (b*e + a*f + c*h- d*g) , (a*g - b*h+ c*e + d*f) , (a*h + b*g - c*f + d*e)]
+   print(zc)
+   print(z)
    #print(x)
    #print(y)
-   
+   print(f'q1 = {q1}')
+   print(f'q2 = {q2}')
+   print(q1*zc) #this is correct    
+   print(q2*zc)
+   input()
    #print(z)
    #print(x*z)
-   angle0 = ( math.acos(z[0]) * 2 )*180/math.pi
+   angle0 = ( math.acos(z[0]) * 2 )*180/math.pi # this is correct
    angle3 = ( math.acos(z[3]) * 2 )*180/math.pi
    print(angle0, angle3)
    #print('euler')
@@ -80,17 +90,30 @@ def cal_angle(q1, q2):
    n_q1=normm(q1)
    #print(f'norm = {n_q1}')
    n_q2=normm(q2)
-
-
    print(f'angle = {math.acos(q1[0]*q2[0] + q1[1]*q2[1] +q1[2]*q2[2] + q1[3]*q2[3])*180/math.pi} * 2 \n')
 
 
+def qua_diff(q1,q2):  # mean how to from q1 to q2 --> q1 * z = q2
+    n_q1=normm(q1)
+    #print(f'norm = {n_q1}')
+    n_q2=normm(q2)
+
+    q1=[q1[0]/n_q1, q1[1]/n_q1, q1[2]/n_q1, q1[3]/n_q1] #會變成單位四元數  類似單位向量
+
+    q2=[q2[0]/n_q2, q2[1]/n_q2, q2[2]/n_q2, q2[3]/n_q2]
+
+    a=q1[0]; b=-q1[1]; c=-q1[2]; d=-q1[3]
+    
+    e=q2[0]; f=q2[1]; g=q2[2]; h=q2[3]
+    
+    z = [(a*e - b*f -c* g- d*h), (b*e + a*f + c*h- d*g) , (a*g - b*h+ c*e + d*f) , (a*h + b*g - c*f + d*e)]
+    
+    return z
+
 q1 = [0.9897052,   0.021346753, -0.14117369, -0.009901799 ]#2.755847931 -16.25458527   -1.596380353
-q2 = [0.3116954,   0.65297955,  -0.39905578, 0.5632197]
-a, b,c = euler_from_quaternion(q1)
-#a, b,c=2.755847931, -16.25458527,   -1.596380353
-print(a,b,c)
-print(euler_from_quaternion(quaternion_from_euler([a,b,c])))
+q2 = [1,0,0,0]
+
+print(qua_diff(q2, q1))
 
 input()
 qua_to_angle(q1,q2)

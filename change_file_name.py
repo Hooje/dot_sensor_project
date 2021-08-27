@@ -57,6 +57,21 @@ def rename_sit_stand(src):
 
 
 
+def rename_way(src):
+    input(f'rename {src} way ? ')
+    src1=src
+    dirs=os.listdir(src1)
+    #print(dirs)
+    dirs=sorted(dirs)
+    print(sorted(dirs))
+    for idx,d in enumerate(dirs):
+        print(f'transfer {d} into {idx}')
+
+    input(f'correct?\n')
+    for idx,d in enumerate(dirs):
+        os.rename(src1+"/"+d,src1+"/"+str(idx))
+
+
 
 
 
@@ -70,15 +85,16 @@ if __name__ == '__main__':
     
     #with open(lazy_complete_path('xxx'), 'r') as f:
     #way=["vaccume","pick_high","hair","pick"]
-    way=["0","1","2","3","4"]#,"5","6"]#,"7","8","9","10","11","12","13","14","15","16","17","18","19","20"]
+    way=["0","1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18"]#,"19","20"]
     #way=["curve","lie","sit","tilt","zero","stand1","stand2","stand3","stand4","stand5"]
     #way=["sit"]
+    src = "../0824/me2/"
+    if 1:
+        rename_way(src)
+
+    input('rename  12345 ?')
     for i in range(len(way)):
         source=way[i]
-        if iszero == 1:
-            source="zero"
-        src="../stand_train/"+source
-        rename_sit_stand(src)
-        src="../stand_test/"+source
-        rename_sit_stand(src)
+        src1=src+source
+        rename_sit_stand(src1)
         
