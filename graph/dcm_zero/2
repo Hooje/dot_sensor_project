@@ -1,9 +1,9 @@
 digraph Tree {
 node [shape=box, style="rounded", color="black", fontname=helvetica] ;
 edge [fontname=helvetica] ;
-0 [label="angle_13x <= 1.052\ngini = 0.5\nsamples = 48\nvalue = [24, 24]"] ;
-1 [label="gini = 0.0\nsamples = 24\nvalue = [24, 0]"] ;
+0 [label="sensor_2_angle1 <= 7.189\ngini = 0.5\nsamples = 108\nvalue = [54, 54]"] ;
+1 [label="gini = 0.0\nsamples = 54\nvalue = [54, 0]"] ;
 0 -> 1 [labeldistance=2.5, labelangle=45, headlabel="True"] ;
-2 [label="gini = 0.0\nsamples = 24\nvalue = [0, 24]"] ;
+2 [label="gini = 0.0\nsamples = 54\nvalue = [0, 54]"] ;
 0 -> 2 [labeldistance=2.5, labelangle=-45, headlabel="False"] ;
 }

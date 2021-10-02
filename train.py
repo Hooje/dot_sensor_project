@@ -111,7 +111,7 @@ def init():
         x_list[i]=[]
         x_add_list[i]=[]
 
-def find_three(index, score, all_matrix):
+def find_three(index, score, all_matrix, list_three):
     global list_three
     list_three.append((index,score, all_matrix))
     list_three = sorted(list_three, reverse = True, key = lambda s: s[1])

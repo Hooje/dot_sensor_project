@@ -5,11 +5,11 @@ import math
 import quaternion
 import numpy as np
 def normm(qua):
-   sum=0
-   for i in range(4):
+    sum=0
+    for i in range(len(qua)):
       sum+=qua[i]**2
-   sum=sum**0.5
-   return sum
+    sum=sum**0.5
+    return sum
 
  
 def euler_from_quaternion(q):
@@ -47,50 +47,50 @@ def quaternion_from_euler(e):
     return [qw, qx, qy, qz]
 
 def qua_to_angle(q1,q2):  #how to from q1 to q2   -->　q1 * z = q2
-   n_q1=normm(q1)
-   #print(f'norm = {n_q1}')
-   n_q2=normm(q2)
+    n_q1=normm(q1)
+    #print(f'norm = {n_q1}')
+    n_q2=normm(q2)
 
-   q1=[q1[0]/n_q1, q1[1]/n_q1, q1[2]/n_q1, q1[3]/n_q1] #會變成單位四元數  類似單位向量
+    q1=[q1[0]/n_q1, q1[1]/n_q1, q1[2]/n_q1, q1[3]/n_q1] #會變成單位四元數  類似單位向量
 
-   q2=[q2[0]/n_q2, q2[1]/n_q2, q2[2]/n_q2, q2[3]/n_q2]
+    q2=[q2[0]/n_q2, q2[1]/n_q2, q2[2]/n_q2, q2[3]/n_q2]
 
-   x = Quaternion(q1) 
+    x = Quaternion(q1) 
 
-   y = Quaternion(q2)
-   #conj_quaternion = my_quaternion.conjugate
-   zc = x.conjugate *y
-   print(type(q1))
-   a=q1[0]; b=-q1[1]; c=-q1[2]; d=-q1[3]
-   e=q2[0]; f=q2[1]; g=q2[2]; h=q2[3]
-   z = [(a*e - b*f -c* g- d*h), (b*e + a*f + c*h- d*g) , (a*g - b*h+ c*e + d*f) , (a*h + b*g - c*f + d*e)]
-   print(zc)
-   print(z)
-   #print(x)
-   #print(y)
-   print(f'q1 = {q1}')
-   print(f'q2 = {q2}')
-   print(q1*zc) #this is correct    
-   print(q2*zc)
-   input()
-   #print(z)
-   #print(x*z)
-   angle0 = ( math.acos(z[0]) * 2 )*180/math.pi # this is correct
-   angle3 = ( math.acos(z[3]) * 2 )*180/math.pi
-   print(angle0, angle3)
-   #print('euler')
-   a,b,c=euler_from_quaternion(x)
-   print(a,b,c)
-   a,b,c=euler_from_quaternion(y)
-   print(a,b,c)
-   a,b,c=euler_from_quaternion(z)
-   print(a,b,c)
-   print()
+    y = Quaternion(q2)
+    #conj_quaternion = my_quaternion.conjugate
+    zc = x.conjugate *y
+    print(type(q1))
+    a=q1[0]; b=-q1[1]; c=-q1[2]; d=-q1[3]
+    e=q2[0]; f=q2[1]; g=q2[2]; h=q2[3]
+    z = [(a*e - b*f -c* g- d*h), (b*e + a*f + c*h- d*g) , (a*g - b*h+ c*e + d*f) , (a*h + b*g - c*f + d*e)]
+    print(zc)
+    print(z)
+    #print(x)
+    #print(y)
+    print(f'q1 = {q1}')
+    print(f'q2 = {q2}')
+    print(q1*zc) #this is correct    
+    print(q2*zc)
+    input()
+    #print(z)
+    #print(x*z)
+    angle0 = ( math.acos(z[0]) * 2 )*180/math.pi # this is correct
+    angle3 = ( math.acos(z[3]) * 2 )*180/math.pi
+    print(angle0, angle3)
+    #print('euler')
+    a,b,c=euler_from_quaternion(x)
+    print(a,b,c)
+    a,b,c=euler_from_quaternion(y)
+    print(a,b,c)
+    a,b,c=euler_from_quaternion(z)
+    print(a,b,c)
+    print()
 def cal_angle(q1, q2):
-   n_q1=normm(q1)
-   #print(f'norm = {n_q1}')
-   n_q2=normm(q2)
-   print(f'angle = {math.acos(q1[0]*q2[0] + q1[1]*q2[1] +q1[2]*q2[2] + q1[3]*q2[3])*180/math.pi} * 2 \n')
+    n_q1=normm(q1)
+    #print(f'norm = {n_q1}')
+    n_q2=normm(q2)
+    print(f'angle = {math.acos(q1[0]*q2[0] + q1[1]*q2[1] +q1[2]*q2[2] + q1[3]*q2[3])*180/math.pi} * 2 \n')
 
 
 def qua_diff(q1,q2):  # mean how to from q1 to q2 --> q1 * z = q2
@@ -110,12 +110,80 @@ def qua_diff(q1,q2):  # mean how to from q1 to q2 --> q1 * z = q2
     
     return z
 
+
+def euler_to_vector(e):
+    #Z, Y, X (yaw, pitch, roll),
+    roll, pitch, yaw = e[0]*math.pi/180, e[1]*math.pi/180,e[2]*math.pi/180
+
+    x = math.cos(yaw)*math.cos(pitch)
+    y = math.sin(yaw)*math.cos(pitch)
+    z = math.sin(pitch)
+    return [x,y,z]
+def angle_between_vector(v1, v2):
+    #α = math.acos[(a · b) / (|a| * |b|)]
+    dot = v1[0]*v2[0]+v1[1]*v2[1]+v1[2]*v2[2]
+    norm_v1= normm(v1)
+    norm_v2= normm(v2)
+    return math.acos(dot/(norm_v1*norm_v2))*180/math.pi
+def cal_angle_new(e1,e2):
+    v1=euler_to_vector(e1)
+    v2=euler_to_vector(e2)
+    return angle_between_vector(v1,v2)
+
+def euler_to_dcm(e1,e2): # w, x , y ,z
+    q1=quaternion_from_euler(e1)
+    q2=quaternion_from_euler(e2)
+    q=qua_diff(q1,q2)
+    w,x,y,z=q[0],q[1],q[2],q[3]
+    angle1=abs(math.acos(w**2+x**2-y**2-z**2)*180/math.pi)
+    angle2=abs(math.acos(w**2-x**2+y**2-z**2)*180/math.pi)
+    angle3=abs(math.acos(w**2-x**2-y**2+z**2)*180/math.pi)
+    print(angle1,angle2,angle3)
+if __name__ == '__main__':
+    e0 = [10,20,30]
+    e90 = [40,90,70]
+    e90_2 = [0,0,310]
+
+    v0 = euler_to_vector(e0)
+    v90 = euler_to_vector(e90)
+
+    #print(f'v0 = {v0}')
+    #print(f'v90 = {v90}')
+    print(f'angle 90 = {angle_between_vector(v0,v90)}')
+    euler_to_dcm(e0,e90)
+    print(f'angle x = {cal_angle_new(e0,e90_2)}')
+    euler_to_dcm(e0,e90_2)
+    exit(0)
+    q0 = quaternion_from_euler(e0)
+    q90 = quaternion_from_euler(e90)
+
+    q1 = [0.6286867,   -0.7020504,  -0.20587273, 0.26361862 ]
+    q2 = [0.009228709, 0.066409506, 0.6392755,   -0.76604927]
+
+    e1 = euler_from_quaternion(q1)
+    e2 = euler_from_quaternion(q2)
+    v1=euler_to_vector(e1)
+    v2=euler_to_vector(e2)  
+    print(f'angle 90 = {angle_between_vector(v1,v2)}')
+
+    angle = cal_angle(q1, q2)
+#    print(f'angle 90 = {angle}')
+'''
+0.6286867   -0.7020504  -0.20587273 0.26361862   90
+0.009228709 0.066409506 0.6392755   -0.76604927
+
+
+0.31020337  -0.004680461   -0.003569651   -0.95065206 #wxyz   90
+0.010360244 0.005515528 -0.003372066   -0.99992555
+
+0.89920574  0.052675977 -0.31929377 0.29445887   90
+0.23364507  0.6522624   -0.60282236 0.39568815
+
+
+
 q1 = [0.9897052,   0.021346753, -0.14117369, -0.009901799 ]#2.755847931 -16.25458527   -1.596380353
 q2 = [1,0,0,0]
 
-print(qua_diff(q2, q1))
-
-input()
 qua_to_angle(q1,q2)
 cal_angle(q1,q2)
 
@@ -182,7 +250,7 @@ qua_to_angle(q2,q1)
 #cal_angle(q1,q2)
 a,b,c=euler_from_quaternion(q1)
 #print(a,b,c)
-'''
+
 44.95615387 28.03258133 -161.6861267
 0.050670847 0.27909154  -0.33062238 -0.9001291
 
@@ -307,10 +375,6 @@ z = x.conjugate * y
 angle = ( math.acos(z[0]) * 2 )*180/math.pi
 
 print(angle) # should be 127
-'''
-
-
-'''
 
 0.31020337  -0.004680461   -0.003569651   -0.95065206 #wxyz   90
 0.010360244 0.005515528 -0.003372066   -0.99992555
