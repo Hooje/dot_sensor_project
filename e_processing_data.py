@@ -1,4 +1,5 @@
 # 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 #
+#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
 import numpy as np
 from function_file import *
 from numpy import ravel
@@ -8,15 +9,15 @@ from sklearn.metrics import confusion_matrix
 from sklearn.tree import export_graphviz
 import pydot# Pull out one tree from the forest
 
-way=["0","7","8","9","10","11","13","15","17"]  # 9 way
+#way=["0","7","8","9","10","11","13","15","17"]  # 9 way
 #way = ["0","1","2"]#,"3","4"]
 #way=["1","2","3","4","7","8","9","10","11","12","13","14","15","16","17","18"]
-way_test=["0","1","2","3","4","5","6","7"]
+#way_test=["0","1","2","3","4","5","6","7"]
 #way_test=["0","1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18"]#,"19","20"]
-#way=["0","1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18"]#,"19","20"]
+way=["0","1","2","3","4","5","6","7","8","9","10","11","12","13","14","15"]#,"16","17","18"]#,"19","20"]
 # 0 6 8 14 16 17 18
 #way = ['5','6']
-#way=["0","1","2","3","4","5","6"]
+way_t=["0","1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30","31","32","33","34","35","36"]
 #way=["0","7","8","9","10","11","12","13","14","15","16","17","18"]
 
 num_row = 1
@@ -30,16 +31,17 @@ case = 'mine'
 ban = [] #ignore which sensor，0 mean sensor 1,  i mean sensor i+1
 set_zero = 1
 use_sin_cos = 0
-dir_name = '0818'
+dir_name = '1002_max'
 #dir_t_name = '0818'
-dir_t_name = '0911'
+dir_t_name = '1008_test'
 path = f'../{dir_name}' # 0818 is three person   0824 is turn sesnro 90 degree
 path2 = f'../{dir_t_name}'
 #train_dir = ['me','yuchi','room'] # room is useless
-train_dir = ['me','yuchi','ichen'] # room is useless
+#train_dir = ['me','yuchi','ichen'] # room is useless
 #train_dir = ['me']#,'me2']
 #test_dir = ['ichen']
-test_dir = ['test_set']
+test_dir = ['mine']
+#test_dir = ['me']
 use_abs = 1
 add_diff = 0
 number = 20
@@ -63,6 +65,7 @@ use_transfer = 0 #mean transfer large euler x,
 #path2 = '../0728test'
 #------------------------------------- for my classfier
 
+'''
 threshold = 10
 
 test_mine = 8 # 18 or 8
@@ -76,13 +79,13 @@ else:
     m_way = way_test
     m_dir = ['test_set']
     m_good_set = good_set_t
-
+'''
 #-------------------------------------
 if __name__ == '__main__':      
     #first_row,y_th = init(case)
     rfc=RandomForestClassifier(max_depth=m_depth)
     #print(f'set_zero : {set_zero}')
-    print(f'ban : {ban}')
+    #print(f'ban : {ban}')
     #print('use ori sensor 3')
                 
     
@@ -90,7 +93,8 @@ if __name__ == '__main__':
     #path2 = '../stand_test'
     if case == 'mine':
 
-        my_dcm_classfier(m_path,m_way,m_dir,  m_good_set,threshold)
+        my_dcm_init(path,way,test_dir,path2,way_t,test_dir,weight=1)
+        #my_dcm_classfier(m_path,m_way,m_dir,  m_good_set,threshold)
         #my_classfier(m_path,m_way,m_dir,  m_good_set,threshold)
         exit()
     elif case == 'angle':

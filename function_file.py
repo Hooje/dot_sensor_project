@@ -1,6 +1,10 @@
 import math
 import numpy as np
 
+def ntz(x): # negative to zero 
+    if x < 0:
+        return 0
+    return x
 def find_three(index, score, all_matrix, num_decisiontree ,list_three):
     list_three.append((index,score, all_matrix))
     list_three = sorted(list_three, reverse = True, key = lambda s: s[1])
@@ -122,22 +126,22 @@ def qua_to_dcm(q1,q2):
     tmp2 = w**2-x**2+y**2-z**2
     tmp3 = w**2-x**2-y**2+z**2
     if tmp1 > 1 :
-        print('error', tmp1)
+        #print('error', tmp1)
         tmp1=1
     if tmp1 < -1:
-        print('error', tmp1)
+        #print('error', tmp1)
         tmp1=-1
     if tmp2 > 1 :
-        print('error', tmp2)
+        #print('error', tmp2)
         tmp2=1
     if tmp2 < -1:
-        print('error', tmp2)
+        #print('error', tmp2)
         tmp2=-1
     if tmp3 > 1 :
-        print('error', tmp3)
+        #print('error', tmp3)
         tmp3=1
     if tmp3 < -1:
-        print('error', tmp3)
+        #print('error', tmp3)
         tmp3=-1
 
     angle1=abs(math.acos(tmp1)*180/math.pi)
@@ -145,6 +149,37 @@ def qua_to_dcm(q1,q2):
     angle3=abs(math.acos(tmp3)*180/math.pi)
     #print(angle1,angle2,angle3)
     return angle1,angle2, angle3
+def choose_type(x,y,z):
+    print(x,y,z)
+    if x == min(x,y,z):
+        return 2
+    if y == min(x,y,z):
+        return 1
+    else:
+        return 0
+def threshold_funcion(dx_12, max_dx_12,  dy_12, max_dy_12, dz_12, max_dz_12, dx_13, \
+                        max_dx_13, dy_13, max_dy_13, dz_13, max_dz_13):
+    balance_1 = 0
+    balance_2 = 3
+    balance_3 = 7
+    k = 0.000000001 # for not  division by zero
+    #print(dx_12, max_dx_12,  dy_12, max_dy_12, dz_12, max_dz_12, dx_13, \
+    #                    max_dx_13, dy_13, max_dy_13, dz_13, max_dz_13)
+    #input()
+    #return (dx_12/max_dx_12)**2+(dy_12/max_dy_12)**2+(dz_12/max_dz_12)**2+\
+    #        ntz((dx_12-dy_12)/(dx_12+k))*balance_1 + ntz((dx_12-dz_12)/(dx_12+k))*balance_2 + ntz((dz_12-dx_12)/(dz_12+k))*balance_3
+
+    return (dx_12/max_dx_12)**2+(dy_12/max_dy_12)**2+(dz_12/max_dz_12)**2+\
+            (dx_13/max_dx_13)**2+(dy_13/max_dy_13)**2+(dz_13/max_dz_13)**2+\
+            ntz((dx_12-dy_12)/max_dx_12)*balance_1 + ntz((dx_12-dz_12)/max_dy_12)*balance_2 + ntz((dz_12-dx_12)/max_dz_12)*balance_3
+        
+    return (dx_12/max_dx_12)**2+(dy_12/max_dy_12)**2+(dz_12/max_dz_12)**2+\
+            (dx_13/max_dx_13)**2+(dy_13/max_dy_13)**2+(dz_13/max_dz_13)**2+\
+            ntz((dx_12-dy_12)/(dx_12+k))*balance_1 + ntz((dx_12-dz_12)/(dx_12+k))*balance_2 + ntz((dz_12-dx_12)/(dz_12+k))*balance_3
+
+    #return [dx_12, dy_12, dz_12, dx_13,dy_13,dz_13, value]
+def weighting_function(w):
+    return 1/w
 def make_difference_dataset(dest,path,way,num_row,ban,dir, set_zero, use_transfer):
     fp = open(dest,'w') 
     q_basic = {}
@@ -390,6 +425,251 @@ def my_classfier(path,way,dir, good_set, threshold):
             s3.close()
             s4.close()
             s5.close()
+
+def my_dcm_init(path,init_way,dir,path_t,move_way,dir_t,weight):
+    use_sensor13 = 0
+
+    dx_12 =  {} #sensor 1 2  x  difference , dx['mine'] ...
+    dy_12 =  {}
+    dz_12 =  {}
+    dx_13 =  {}
+    dy_13 =  {}
+    dz_13 =  {}
+    
+    max_dx_12 =  {}
+    max_dy_12 =  {}
+    max_dz_12 =  {}
+    max_dx_13 =  {}
+    max_dy_13 =  {}
+    max_dz_13 =  {}
+
+    way_set1 = [1,2,3,4,5] #前彎
+    way_set2 = [6,7,8,9,10] #右側
+    way_set3 = [11,12,13,14,15] #右旋
+    # for zero --------------------------------------------------------------------
+    e_basic = {}
+    for dire in dir:  # for zero
+        e_basic[dire] = [[],[],[],[],[]]
+        
+        dx_12[dire] = [0,0,0]  
+        dy_12[dire] = [0,0,0]  
+        dz_12[dire] = [0,0,0]  
+        dx_13[dire] = [0,0,0]  
+        dy_13[dire] = [0,0,0]  
+        dz_13[dire] = [0,0,0]  
+        
+        for i in range(5):
+            with open(f'{path}/{dire}/0/{i+1}.csv') as f:
+                f.readline() #ignore first line
+                temp = f.readline().strip().split(',')
+                #print(temp)
+                e_basic[dire][i]= [float(k) for k in temp[2:]]
+        
+        if use_sensor13 == 1:
+            e_basic[dire][0] = e_basic[dire][2]        
+
+    #------------------------------------------------------------------------------
+
+
+    for idx_move,w in enumerate(init_way): # for every way
+        #num_feature = 0
+        #value = int(idx_move not in good_set) # if good then 0  , bad than 1 
+
+        for dire in dir: # for every person 
+
+            s1 = open(f'{path}/{dire}/{w}/1.csv','r') #f mean sensor
+            s2 = open(f'{path}/{dire}/{w}/2.csv','r')
+            s3 = open(f'{path}/{dire}/{w}/3.csv','r')
+            s4 = open(f'{path}/{dire}/{w}/4.csv','r')
+            s5 = open(f'{path}/{dire}/{w}/5.csv','r')
+
+            all_sensor = [s1,s2,s3,s4,s5] 
+            if use_sensor13 == 1:
+                all_sensor = [s3,s2,s3,s4,s5] 
+
+            e=[[],[],[],[],[]] #for every sensor's euler
+            q=[[],[],[],[],[]] #for every sensor's euler to quaternion
+            for f in all_sensor: #each sensor
+                each_line = f.readline()#first line
+
+            num_row_balance = 1 # check one tiem is ok 
+            for i in range(num_row_balance): # for every row
+                each_row = []
+                #input()
+                for idx,f in enumerate(all_sensor): #each sensor
+                    each_line = f.readline()
+                    each_list = each_line.strip().split(',') # string to list
+                    e[idx] = [float(k) for k in each_list[2:]] # get sensor
+
+                    #q[idx]= quaternion_from_euler(e[idx])
+
+                angle_1x, angle_1y, angle_1z  =euler_to_dcm(e_basic[dire][0],e[0]) #sensor 1
+                angle_2x, angle_2y, angle_2z  =euler_to_dcm(e_basic[dire][1],e[1]) #sensor 2
+                angle_3x, angle_3y, angle_3z  =euler_to_dcm(e_basic[dire][2],e[2]) #sensor 3
+
+                # -------------------------- one way five time
+                if int(w) in way_set1:
+                    k = 0
+                elif int(w) in way_set2:
+                    k = 1
+                elif int(w) in way_set3:
+                    k = 2
+                else:
+                    continue
+                #print(f'k = {k}')
+                '''
+                print(f'{angle_1z}')
+                print(f'{angle_2z}')
+                print(f'way_set = {k+1} {abs(angle_1z-angle_2z)} ')
+                print(f'now dz = {dz_12[k]}')
+                '''
+                dx_12[dire][k] += abs(angle_1x-angle_2x)
+                dy_12[dire][k] += abs(angle_1y-angle_2y)
+                dz_12[dire][k] += abs(angle_1z-angle_2z)
+
+                dx_13[dire][k] += abs(angle_1x-angle_3x)
+                dy_13[dire][k] += abs(angle_1y-angle_3y)
+                dz_13[dire][k] += abs(angle_1z-angle_3z)
+
+
+
+                #print(f' dx_12 = {dx_12}')
+
+            s1.close()
+            s2.close()
+            s3.close()
+            s4.close()
+            s5.close()
+    thres = {}
+    for dire in dir: # for every person threshold
+        tmp = 5   # 5 是為了平均   
+
+        #tmp *= weighting_function(weight) #threshold weighting
+        dx_12[dire] = list(map(lambda x:x/tmp, dx_12[dire]))
+        dy_12[dire] = list(map(lambda x:x/tmp, dy_12[dire]))
+        dz_12[dire] = list(map(lambda x:x/tmp, dz_12[dire]))
+        dx_13[dire] = list(map(lambda x:x/tmp, dx_13[dire]))
+        dy_13[dire] = list(map(lambda x:x/tmp, dy_13[dire]))
+        dz_13[dire] = list(map(lambda x:x/tmp, dz_13[dire]))
+        print('maximum is ....')
+        print(f' dx_12 = {dx_12}')
+        print(f' dy_12 = {dy_12}')
+        print(f' dz_12 = {dz_12}')
+        print(f' dx_13 = {dx_13}')
+        print(f' dy_13 = {dy_13}')
+        print(f' dz_13 = {dz_13}')
+        #thres = math.sqrt()
+
+        max_dx_12[dire] = max(dx_12[dire][0],dx_12[dire][1],dx_12[dire][2])
+        max_dy_12[dire] = max(dy_12[dire][0],dy_12[dire][1],dy_12[dire][2])
+        max_dz_12[dire] = max(dz_12[dire][0],dz_12[dire][1],dz_12[dire][2])
+
+        max_dx_13[dire] = max(dx_13[dire][0],dx_13[dire][1],dx_13[dire][2])
+        max_dy_13[dire] = max(dy_13[dire][0],dy_13[dire][1],dy_13[dire][2])
+        max_dz_13[dire] = max(dz_13[dire][0],dz_13[dire][1],dz_13[dire][2]) 
+
+        '''
+        thres_set_1 = threshold_funcion(dx_12[dire][0], dy_12[dire][0], dz_12[dire][0], dx_13[dire][0], dy_13[dire][0], dz_13[dire][0]) #這裡已經算過threshold weighting了
+
+        thres_set_2 = threshold_funcion(dx_12[dire][1], dy_12[dire][1], dz_12[dire][1], dx_13[dire][1], dy_13[dire][1], dz_13[dire][1])
+        thres_set_3 = threshold_funcion(dx_12[dire][2], dy_12[dire][2], dz_12[dire][2], dx_13[dire][2], dy_13[dire][2], dz_13[dire][2])
+        thres[dire] = [thres_set_1,thres_set_2,thres_set_3] 
+        '''
+
+    #print(thres)
+    #input()
+    #------------------------------------- for ways row
+
+    # for zero --------------------------------------------------------------------
+    e_basic = {}
+    for dire in dir_t:  # for zero
+        e_basic[dire] = [[],[],[],[],[]]
+
+        for i in range(5):
+            with open(f'{path_t}/{dire}/0/{i+1}.csv') as f:
+                f.readline() #ignore first line
+                temp = f.readline().strip().split(',')
+                #print(temp)
+                e_basic[dire][i]= [float(k) for k in temp[2:]]
+
+                
+
+    for idx_move,w in enumerate(move_way): # for every way
+        #print(idx_move)
+        if idx_move % 4 ==1:
+            print()
+        #num_feature = 0
+        #value = int(idx_move not in good_set) # if good then 0  , bad than 1 
+
+        for dire in dir_t: # for every person 
+            s1 = open(f'{path_t}/{dire}/{w}/1.csv','r') #f mean sensor
+            s2 = open(f'{path_t}/{dire}/{w}/2.csv','r')
+            s3 = open(f'{path_t}/{dire}/{w}/3.csv','r')
+            s4 = open(f'{path_t}/{dire}/{w}/4.csv','r')
+            s5 = open(f'{path_t}/{dire}/{w}/5.csv','r') 
+            
+            all_sensor = [s1,s2,s3,s4,s5] 
+            if use_sensor13 == 1:
+                all_sensor = [s3,s2,s3,s4,s5] 
+
+            e=[[],[],[],[],[]] #for every sensor's euler
+            q=[[],[],[],[],[]] #for every sensor's euler to quaternion
+            for f in all_sensor: #each sensor
+                each_line = f.readline()#first line
+
+            num_row_balance = 1 # check one tiem is ok 
+            for i in range(num_row_balance): # for every row
+                each_row = []
+                #input()
+                for idx,f in enumerate(all_sensor): #each sensor
+                    each_line = f.readline()
+                    each_list = each_line.strip().split(',') # string to list
+                    e[idx] = [float(k) for k in each_list[2:]] # get sensor
+
+                    #q[idx]= quaternion_from_euler(e[idx])
+
+                angle_1x, angle_1y, angle_1z  =  euler_to_dcm(e_basic[dire][0],e[0])
+                angle_2x, angle_2y, angle_2z  =  euler_to_dcm(e_basic[dire][1],e[1])
+                angle_3x, angle_3y, angle_3z  =  euler_to_dcm(e_basic[dire][2],e[2])
+
+                angle_12x = abs(angle_1x-angle_2x)
+                angle_12y = abs(angle_1y-angle_2y)
+                angle_12z = abs(angle_1z-angle_2z)
+                angle_13x = abs(angle_1x-angle_3x)
+                angle_13y = abs(angle_1y-angle_3y)
+                angle_13z = abs(angle_1z-angle_3z)
+                '''
+                choose = choose_type(angle_12x,angle_12y,angle_12z) #choose the rotate direction
+                print(f'choose = {choose}')
+                
+                print('threshold is ....')
+                print(f' dx_12 = {dx_12}')
+                print(f' dy_12 = {dy_12}')
+                print(f' dz_12 = {dz_12}')
+                print(f' dx_13 = {dx_13}')
+                print(f' dy_13 = {dy_13}')
+                print(f' dz_13 = {dz_13}')
+                input('correct?')
+                '''
+                #print(angle_12x)
+                #k_value = threshold_funcion(angle_12x, angle_12y, angle_12z, angle_13x, angle_13y, angle_13z)
+                k_value = threshold_funcion(angle_12x,max_dx_12[dire], angle_12y,max_dy_12[dire], \
+                    angle_12z,max_dz_12[dire], angle_13x,max_dx_13[dire], angle_13y,max_dy_13[dire], angle_13z,max_dz_13[dire])
+                #if k_value > thres[dire][choose]:
+                '''
+                if k_value > 2:
+                    print(f'bad')
+                else:
+                    print('good')
+                '''
+                print(f'k_value = {k_value}')
+            s1.close()
+            s2.close()
+            s3.close()
+            s4.close()
+            s5.close()
+
+
 def my_dcm_classfier(path,way,dir, good_set, threshold):
 
     # for zero --------------------------------------------------------------------
@@ -435,7 +715,10 @@ def my_dcm_classfier(path,way,dir, good_set, threshold):
 
                     #q[idx]= quaternion_from_euler(e[idx])
 
-
+                angle_1x, angle_1y, angle_1z  =euler_to_dcm(e_basic[dire][0],e[0])
+                angle_2x, angle_2y, angle_2z  =euler_to_dcm(e_basic[dire][1],e[1])
+                angle_3x, angle_3y, angle_3z  =euler_to_dcm(e_basic[dire][2],e[2])
+                '''
                 b_angle_12x,b_angle_12y,b_angle_12z = euler_to_dcm(e_basic[dire][0],e_basic[dire][1])
                 b_angle_13x,b_angle_13y,b_angle_13z = euler_to_dcm(e_basic[dire][2],e_basic[dire][0])
                 angle_12x,angle_12y,angle_12z = euler_to_dcm(e[0],e[1])
@@ -447,7 +730,14 @@ def my_dcm_classfier(path,way,dir, good_set, threshold):
                 each_row.append(abs(angle_13x-b_angle_13x))
                 each_row.append(abs(angle_13y-b_angle_13y))
                 each_row.append(abs(angle_13z-b_angle_13z))
+                '''
 
+                each_row.append(abs(angle_1x-angle_2x))
+                each_row.append(abs(angle_1y-angle_2y))
+                each_row.append(abs(angle_1z-angle_2z))
+                each_row.append(abs(angle_1x-angle_3x))
+                each_row.append(abs(angle_1y-angle_3y))
+                each_row.append(abs(angle_1z-angle_3z))
 
                 if each_row[0]<threshold and each_row[1] <threshold and each_row[2]<threshold and each_row[3]<threshold and each_row[4] <threshold and each_row[5]<threshold:
 

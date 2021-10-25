@@ -85,16 +85,16 @@ if __name__ == '__main__':
     
     #with open(lazy_complete_path('xxx'), 'r') as f:
     #way=["vaccume","pick_high","hair","pick"]
-    way=["0","1","2","3","4","5","6","7"]#,"8","9","10","11","12","13","14","15","16","17","18"]#,"19","20"]
-    #way=["curve","lie","sit","tilt","zero","stand1","stand2","stand3","stand4","stand5"]
+    way=["0","1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30","31","32","33","34","35","36"]
     #way=["sit"]
-    src = "../0911/test_set/"
-    if 1:
+    #way=["0","10","11","12","13","14","20","21","22","23","24","30","31","32","33","34"]
+    src = "../1008/test_set/"
+    if 0:
         rename_way(src)
-
-    input('rename  12345 ?')
+    
+    input(f'rename  {way} ?')
     for i in range(len(way)):
         source=way[i]
         src1=src+source
         rename_sit_stand(src1)
-        
+     
