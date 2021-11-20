@@ -119,9 +119,11 @@ def euler_to_dcm(e1,e2): # w, x , y ,z
     q1=quaternion_from_euler(e1)
     q2=quaternion_from_euler(e2)
     return qua_to_dcm(q1,q2)
+def acos_360(x):
+    return abs(math.acos(x)*180/math.pi)
 def qua_to_dcm(q1,q2):
     q=qua_diff(q1,q2)
-    w,x,y,z=q[0],q[1],q[2],q[3]
+    w,x,y,z=q[0],q[1],q[2],q[3] #ppt w,x,y,z = q4,q1,q2,q3
     tmp1 = w**2+x**2-y**2-z**2
     tmp2 = w**2-x**2+y**2-z**2
     tmp3 = w**2-x**2-y**2+z**2
@@ -148,6 +150,21 @@ def qua_to_dcm(q1,q2):
     angle2=abs(math.acos(tmp2)*180/math.pi)
     angle3=abs(math.acos(tmp3)*180/math.pi)
     #print(angle1,angle2,angle3)
+    #----------------------------------------------- for every element in dcm
+    
+    print(f'dcm matrix \n')
+    print(f'{tmp1}\t{2*(x*y+z*w)}\t{2*(x*z-y*w)}')
+    print(f'{2*(x*y-z*w)}\t{tmp2}\t{2*(y*z+x*w)}')
+    print(f'{2*(x*z+y*w)}\t{2*(y*z-x*w)}\t{tmp3}')
+    
+    '''
+    print(f'\nangle')
+    print(f'{acos_360(tmp1)}\t{acos_360(2*(x*y+z*w))}\t{acos_360(2*(x*z-y*w))}')
+    print(f'{acos_360(2*(x*y-z*w))}\t{acos_360(tmp2)}\t{acos_360(2*(y*z+x*w))}')
+    print(f'{acos_360(2*(x*z+y*w))}\t{acos_360(2*(y*z-x*w))}\t{acos_360(tmp3)}')
+    print('----------------------------------')
+    '''
+    #-----------------------------------------------
     return angle1,angle2, angle3
 def choose_type(x,y,z):
     print(x,y,z)
@@ -158,20 +175,41 @@ def choose_type(x,y,z):
     else:
         return 0
 def threshold_funcion(dx_12, max_dx_12,  dy_12, max_dy_12, dz_12, max_dz_12, dx_13, \
-                        max_dx_13, dy_13, max_dy_13, dz_13, max_dz_13):
-    balance_1 = 0
-    balance_2 = 3
-    balance_3 = 7
-    k = 0.000000001 # for not  division by zero
+                        max_dx_13, dy_13, max_dy_13, dz_13, max_dz_13,balance):
+    #balance_1 = 1
+    #balance_2 = 8.2 #mine
+    #balance_3 = 6.6
+    #balance_2 = 2.2 #room
+    #balance_3 = 7.1
+    '''
+    for i in range(3):
+        balance[i] = math.sqrt(balance[i])
+    '''
+    balance_1 = balance[0]
+    balance_2 = balance[1]
+    balance_3 = balance[2]
+    
+    '''
+    balance_1 = 1
+    balance_2 = 8.2 #mine
+    balance_3 = 6.6
+    '''
+    #input(balance)
+
+    k = 1 # for not  division by zero
     #print(dx_12, max_dx_12,  dy_12, max_dy_12, dz_12, max_dz_12, dx_13, \
     #                    max_dx_13, dy_13, max_dy_13, dz_13, max_dz_13)
     #input()
     #return (dx_12/max_dx_12)**2+(dy_12/max_dy_12)**2+(dz_12/max_dz_12)**2+\
     #        ntz((dx_12-dy_12)/(dx_12+k))*balance_1 + ntz((dx_12-dz_12)/(dx_12+k))*balance_2 + ntz((dz_12-dx_12)/(dz_12+k))*balance_3
-
+    
     return (dx_12/max_dx_12)**2+(dy_12/max_dy_12)**2+(dz_12/max_dz_12)**2+\
             (dx_13/max_dx_13)**2+(dy_13/max_dy_13)**2+(dz_13/max_dz_13)**2+\
-            ntz((dx_12-dy_12)/max_dx_12)*balance_1 + ntz((dx_12-dz_12)/max_dy_12)*balance_2 + ntz((dz_12-dx_12)/max_dz_12)*balance_3
+            ntz((dx_12-dy_12)/(dx_12+k))*balance_1 + ntz((dx_12-dz_12)/(dx_12+k))*balance_2 + ntz((dz_12-dx_12)/(dz_12+k))*balance_3
+    
+    return (dx_12/max_dx_12)**2+(dy_12/max_dy_12)**2+(dz_12/max_dz_12)**2+\
+            (dx_13/max_dx_13)**2+(dy_13/max_dy_13)**2+(dz_13/max_dz_13)**2+\
+            ntz((dx_12-dy_12)/max_dx_12)*balance_1 + ntz((dx_12-dz_12)/max_dx_12)*balance_2 + ntz((dz_12-dx_12)/max_dz_12)*balance_3
         
     return (dx_12/max_dx_12)**2+(dy_12/max_dy_12)**2+(dz_12/max_dz_12)**2+\
             (dx_13/max_dx_13)**2+(dy_13/max_dy_13)**2+(dz_13/max_dz_13)**2+\
@@ -502,11 +540,22 @@ def my_dcm_init(path,init_way,dir,path_t,move_way,dir_t,weight):
                     e[idx] = [float(k) for k in each_list[2:]] # get sensor
 
                     #q[idx]= quaternion_from_euler(e[idx])
-
+                #print(f'way = {w}')
+                #print(f'sensor 1 difference')
                 angle_1x, angle_1y, angle_1z  =euler_to_dcm(e_basic[dire][0],e[0]) #sensor 1
-                angle_2x, angle_2y, angle_2z  =euler_to_dcm(e_basic[dire][1],e[1]) #sensor 2
+                #print(f'sensor 2 difference  ( change to sensor 5 )')
+                angle_2x, angle_2y, angle_2z  =euler_to_dcm(e_basic[dire][4],e[4]) #sensor 2
+                #print(f'sensor 3 difference')
+                #print(angle_2x, angle_2y, angle_2z)
                 angle_3x, angle_3y, angle_3z  =euler_to_dcm(e_basic[dire][2],e[2]) #sensor 3
-
+                '''
+                print(f'sensor 4 difference')
+                angle_4x, angle_4y, angle_4z  =euler_to_dcm(e_basic[dire][3],e[3]) #sensor 4
+                print(f'sensor 5 difference')
+                angle_5x, angle_5y, angle_5z  =euler_to_dcm(e_basic[dire][4],e[4]) #sensor 5
+                
+                input()
+                '''
                 # -------------------------- one way five time
                 if int(w) in way_set1:
                     k = 0
@@ -541,6 +590,7 @@ def my_dcm_init(path,init_way,dir,path_t,move_way,dir_t,weight):
             s4.close()
             s5.close()
     thres = {}
+    balance = {}
     for dire in dir: # for every person threshold
         tmp = 5   # 5 是為了平均   
 
@@ -558,7 +608,15 @@ def my_dcm_init(path,init_way,dir,path_t,move_way,dir_t,weight):
         print(f' dx_13 = {dx_13}')
         print(f' dy_13 = {dy_13}')
         print(f' dz_13 = {dz_13}')
-        #thres = math.sqrt()
+
+
+        temp = [0,0,0]
+        for i in range(3):
+            temp[i]=dx_12[dire][i]**2+dy_12[dire][i]**2+dz_12[dire][i]**2
+            print(dx_12[dire][i]**2+dy_12[dire][i]**2+dz_12[dire][i]**2)
+            print(i)
+        #balance[dire] = [1,temp[0]/temp[1],temp[0]/temp[2]]
+
 
         max_dx_12[dire] = max(dx_12[dire][0],dx_12[dire][1],dx_12[dire][2])
         max_dy_12[dire] = max(dy_12[dire][0],dy_12[dire][1],dy_12[dire][2])
@@ -567,7 +625,11 @@ def my_dcm_init(path,init_way,dir,path_t,move_way,dir_t,weight):
         max_dx_13[dire] = max(dx_13[dire][0],dx_13[dire][1],dx_13[dire][2])
         max_dy_13[dire] = max(dy_13[dire][0],dy_13[dire][1],dy_13[dire][2])
         max_dz_13[dire] = max(dz_13[dire][0],dz_13[dire][1],dz_13[dire][2]) 
-
+        
+        temp[0] = dx_12[dire][0]/max_dx_12[dire] + dy_12[dire][0]/max_dy_12[dire] + dz_12[dire][0]/max_dz_12[dire]
+        temp[1] = dx_12[dire][1]/max_dx_12[dire] + dy_12[dire][1]/max_dy_12[dire] + dz_12[dire][1]/max_dz_12[dire]
+        temp[2] = dx_12[dire][2]/max_dx_12[dire] + dy_12[dire][2]/max_dy_12[dire] + dz_12[dire][2]/max_dz_12[dire]
+        balance[dire] = [1,temp[0]/temp[1],temp[0]/temp[2]]
         '''
         thres_set_1 = threshold_funcion(dx_12[dire][0], dy_12[dire][0], dz_12[dire][0], dx_13[dire][0], dy_13[dire][0], dz_13[dire][0]) #這裡已經算過threshold weighting了
 
@@ -577,8 +639,8 @@ def my_dcm_init(path,init_way,dir,path_t,move_way,dir_t,weight):
         '''
 
     #print(thres)
-    #input()
-    #------------------------------------- for ways row
+    
+    #------------------------------------------------------------------------------------ for test  ways row
 
     # for zero --------------------------------------------------------------------
     e_basic = {}
@@ -654,7 +716,7 @@ def my_dcm_init(path,init_way,dir,path_t,move_way,dir_t,weight):
                 #print(angle_12x)
                 #k_value = threshold_funcion(angle_12x, angle_12y, angle_12z, angle_13x, angle_13y, angle_13z)
                 k_value = threshold_funcion(angle_12x,max_dx_12[dire], angle_12y,max_dy_12[dire], \
-                    angle_12z,max_dz_12[dire], angle_13x,max_dx_13[dire], angle_13y,max_dy_13[dire], angle_13z,max_dz_13[dire])
+                    angle_12z,max_dz_12[dire], angle_13x,max_dx_13[dire], angle_13y,max_dy_13[dire], angle_13z,max_dz_13[dire],balance[dire])
                 #if k_value > thres[dire][choose]:
                 '''
                 if k_value > 2:
@@ -689,8 +751,8 @@ def my_dcm_classfier(path,way,dir, good_set, threshold):
     #------------------------------------------------------------------------------
     for idx_move,w in enumerate(way): # for every way
         #num_feature = 0
-        value = int(idx_move not in good_set) # if good then 0  , bad than 1 
-
+        #value = int(idx_move not in good_set) # if good then 0  , bad than 1 
+        value = int(idx_move)
         for dire in dir: # for every person 
             s1 = open(f'{path}/{dire}/{w}/1.csv','r') #f mean sensor
             s2 = open(f'{path}/{dire}/{w}/2.csv','r')
@@ -739,6 +801,7 @@ def my_dcm_classfier(path,way,dir, good_set, threshold):
                 each_row.append(abs(angle_1y-angle_3y))
                 each_row.append(abs(angle_1z-angle_3z))
 
+                '''
                 if each_row[0]<threshold and each_row[1] <threshold and each_row[2]<threshold and each_row[3]<threshold and each_row[4] <threshold and each_row[5]<threshold:
 
                     #input(int(w in good_set)
@@ -756,7 +819,8 @@ def my_dcm_classfier(path,way,dir, good_set, threshold):
                     else:
                         print(each_row)
                         print(f'{dire}  {w} wrong')
-
+                '''
+                print(f' {w}, {each_row}')
                 #if (abs(abs(e[0][0])-0) > abs(abs(e[0][0])-180)):
                     #print(f'way {w} is back way')
                     #print(f'{dire} {w} back {e[0][0]}')

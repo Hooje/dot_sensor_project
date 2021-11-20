@@ -1,5 +1,4 @@
-# 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 #
-#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
+# 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
 import numpy as np
 from function_file import *
 from numpy import ravel
@@ -18,7 +17,7 @@ way=["0","1","2","3","4","5","6","7","8","9","10","11","12","13","14","15"]#,"16
 # 0 6 8 14 16 17 18
 #way = ['5','6']
 way_t=["0","1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30","31","32","33","34","35","36"]
-#way=["0","7","8","9","10","11","12","13","14","15","16","17","18"]
+way=["0","7","8","9","10","11","13","15","17"] #鴻章
 
 num_row = 1
 #case = 'dcm'
@@ -31,17 +30,26 @@ case = 'mine'
 ban = [] #ignore which sensor，0 mean sensor 1,  i mean sensor i+1
 set_zero = 1
 use_sin_cos = 0
-dir_name = '1002_max'
+
+dir_name = 'threshold_max' # max 
+dir_name = '1026' # 鴻章 
+
 #dir_t_name = '0818'
-dir_t_name = '1008_test'
+#dir_t_name = '1008_test'#my 10*4 test
+dir_t_name = 'threshold_test'
 path = f'../{dir_name}' # 0818 is three person   0824 is turn sesnro 90 degree
 path2 = f'../{dir_t_name}'
 #train_dir = ['me','yuchi','room'] # room is useless
 #train_dir = ['me','yuchi','ichen'] # room is useless
 #train_dir = ['me']#,'me2']
+train_dir  = ["room"]
+train_dir  = ["mine2"]
+
+train_dir  = ["9way_set"]
 #test_dir = ['ichen']
-test_dir = ['mine']
-#test_dir = ['me']
+test_dir = ['mine2']
+#test_dir = ["room"]
+##test_dir = ['me']
 use_abs = 1
 add_diff = 0
 number = 20
@@ -92,10 +100,12 @@ if __name__ == '__main__':
     #path = '../stand_train'
     #path2 = '../stand_test'
     if case == 'mine':
-
-        my_dcm_init(path,way,test_dir,path2,way_t,test_dir,weight=1)
+        #my_dcm_classfier('../1026',["0","7","8","9","10","11","13","15","17"] ,['9way_set'],  0,0)
+        #input()
+        print(f'check sensor 2 or 4 is right?')
+        my_dcm_init(path,way,train_dir,path2,way_t,test_dir,weight=1)
         #my_dcm_classfier(m_path,m_way,m_dir,  m_good_set,threshold)
-        #my_classfier(m_path,m_way,m_dir,  m_good_set,threshold)
+        # my_classfier(m_path,m_way,m_dir,  m_good_set,threshold)
         exit()
     elif case == 'angle':
         _=make_angle_dataset('test_create',path,way,num_row,ban,train_dir,use_sin_cos, set_zero, use_abs, add_diff, good_set)
