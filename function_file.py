@@ -612,7 +612,7 @@ def my_dcm_init(path,init_way,dir,path_t,move_way,dir_t,weight):
 
         temp = [0,0,0]
         for i in range(3):
-            temp[i]=dx_12[dire][i]**2+dy_12[dire][i]**2+dz_12[dire][i]**2
+            temp[i] = dx_12[dire][i]**2+dy_12[dire][i]**2+dz_12[dire][i]**2
             print(dx_12[dire][i]**2+dy_12[dire][i]**2+dz_12[dire][i]**2)
             print(i)
         #balance[dire] = [1,temp[0]/temp[1],temp[0]/temp[2]]

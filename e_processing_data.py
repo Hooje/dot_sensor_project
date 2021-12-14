@@ -4,7 +4,7 @@ from function_file import *
 from numpy import ravel
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import confusion_matrix
-
+from sklearn import tree
 from sklearn.tree import export_graphviz
 import pydot# Pull out one tree from the forest
 
@@ -32,7 +32,7 @@ set_zero = 1
 use_sin_cos = 0
 
 dir_name = 'threshold_max' # max 
-dir_name = '1026' # 鴻章 
+#dir_name = '1026' # 鴻章 
 
 #dir_t_name = '0818'
 #dir_t_name = '1008_test'#my 10*4 test
@@ -44,10 +44,11 @@ path2 = f'../{dir_t_name}'
 #train_dir = ['me']#,'me2']
 train_dir  = ["room"]
 train_dir  = ["mine2"]
+train_dir  = ["1202_mine"] #same as mine2
 
-train_dir  = ["9way_set"]
+#train_dir  = ["9way_set"]
 #test_dir = ['ichen']
-test_dir = ['mine2']
+test_dir = ['1202_mine']
 #test_dir = ["room"]
 ##test_dir = ['me']
 use_abs = 1

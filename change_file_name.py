@@ -57,6 +57,7 @@ def rename_sit_stand(src):
 
 
 
+
 def rename_way(src):
     input(f'rename {src} way ? ')
     src1=src
@@ -89,7 +90,7 @@ if __name__ == '__main__':
     "21","22","23","24","25","26","27","28","29","30","31","32","33","34","35","36"]
     #way=["0","7","8","9","10","11","13","15","17"]  # 9 way
     #way=["0","10","11","12","13","14","20","21","22","23","24","30","31","32","33","34"]
-    src = "../threshold_test/mine2/"
+    src = "../threshold_test/1202_mine/"
     if 1:
         rename_way(src)
     

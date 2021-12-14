@@ -1,4 +1,3 @@
-# access token = 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
 from math import cos, sin
 import math
 import numpy as np
@@ -71,29 +70,8 @@ def check_sensor(e, e_b):
 
 def euler_to_3vector(e):
     #Z, Y, X (yaw, pitch, roll),
-    qw, qx, qy, qz = quaternion_from_euler(e)
-    Matrix_q = np.array([[1-2*qy**2-2*qz**2, 2*qx*qy-2*qw*qz, 2*qx*qz+2*qw*qy],
-                         [2*qx*qy+2*qw*qz, 1-2*qx**2-2*qz**2, 2*qy*qz-2*qw*qx],
-                         [2*qx*qz-2*qw*qy, 2*qy*qz+2*qw*qx, 1-2*qx**2-2*qy**2]])
-                         
-    #print(f'matrix_q = {Matrix_q}')
-    v1 = Matrix_q[:,0]
-    v2 = Matrix_q[:,1]
-    v3 = Matrix_q[:,2]
-
-    return [v1,v2,v3]
-
-    #-------------------------------------------------------------------------------------------# below use euler angle to calculate matrix (but is wrong) 
-    #Z, Y, X (yaw, pitch, roll),
     roll, pitch, yaw = e[0]*math.pi/180, e[1]*math.pi/180,e[2]*math.pi/180
 
-    rotate_x = np.array([[1,0,0],[0,cos(roll),-sin(roll)],[0,sin(roll),cos(roll)]])
-    rotate_y = np.array([[cos(pitch),0,sin(pitch)],[0,1,0],[-sin(pitch),0,cos(pitch)]])
-    rotate_z = np.array([[cos(yaw), -sin(yaw), 0],[sin(yaw), cos(yaw),0],[0,0,1]])
-
-    three_axis = rotate_x@rotate_y@rotate_z
-    
-    '''
     x = cos(pitch)*cos(yaw) + sin(roll)*sin(pitch)*sin(yaw)
     y = cos(roll)*sin(yaw)
     z = -sin(pitch)*cos(yaw) + cos(pitch)*sin(roll)*sin(yaw)
@@ -112,11 +90,6 @@ def euler_to_3vector(e):
     z = cos(pitch)*cos(roll)
 
     v3 = np.array([x,y,z])
-    '''
-    print(three_axis)
-    v1 = three_axis[:,0]
-    v2 = three_axis[:,1]
-    v3 = three_axis[:,2]
 
     return [v1,v2,v3]
 
@@ -156,8 +129,6 @@ def three_angle_of_eulers(e1,e2): # (old, new) 計算兩個尤拉角的前後彎
     angle1 = angle_of_axis(e1_axis[0],e1_axis[1],e2_axis[0])  # 前彎 : 舊x軸和，新x軸投影到以舊y軸為法向量的xz平面 的這個投影向量，的夾角
     angle2 = angle_of_axis(e1_axis[0],e1_axis[2],e2_axis[0])  # 側彎 : 舊x軸和，新x軸投影到以舊z軸為法向量的xy平面 的這個投影向量，的夾角
     angle3 = angle_of_axis(e1_axis[1],e1_axis[0],e2_axis[1])  # 旋轉 : 舊y軸和，新y軸投影到以舊x軸為法向量的yz平面 的這個投影向量，的夾角
-    
-    input(angle1)
     return angle1, angle2, angle3
 
 def threshold_funcion(angle,d_angle, balance_percent):
@@ -232,14 +203,9 @@ def func_three_angle(path,dirs,way,path_t,dir_t,way_t, balance_percent):
             else:
                 continue
             angles = [[0 for _ in range(3)] for _ in range(5)]
-
-
-
-            # -----------------------------------------------------------角度計算時有問題，如果只要用兩個sensor，就兩個就好，且Sensor4, 5沒有貼，只會讓值太小
             for i in range(5):
                 angles[i] = three_angle_of_eulers(e_basic[d][i],e[i]) #angles[0] = [angle1, angle2, angle3] 表示sensor1變化的三個角度
                 #print(d_angle[d][i][k] , angles[k])
-                if i 
                 d_angle[d][i][k] += angles[i][k] # 第i個sensor的 前彎、側彎、旋轉  的值增加 
 
             #print(f'angles = {angles}')
@@ -254,8 +220,8 @@ def func_three_angle(path,dirs,way,path_t,dir_t,way_t, balance_percent):
             s5.close()
 
     #----------------------------------------------------------------- print angle
-    #print(angles)
-    #input()
+    print(angles)
+    input()
 
     #----------------------------------------------------------------- for 當下  
 
@@ -320,15 +286,13 @@ def func_three_angle(path,dirs,way,path_t,dir_t,way_t, balance_percent):
             s4.close()
             s5.close()
 
-    k_value_answer = [0,1,1,0,0, 1,1,0,0, 1,1,0,0, 1,1,0,0, 1,1,0,0, 1,1,1,1, 1,1,1,1, 1,1,1,1, 1,1,1,0]
+    k_value_answer = [0,1,1,0,0, 1,1,0,0, 1,1,0,0, 1,1,0,0, 1,1,0,0, 1,1,1,1, 1,1,1,1, 1,1,1,1, 1,1,0,0]
 
     acc = accuracy_score(k_value_answer,k_value_set)
     matrix = confusion_matrix(k_value_answer,k_value_set)
     print()
     print(acc)
     print(matrix)
-
-    return acc 
 if __name__ == '__main__':
     
     path = f'../threshold_max' 
@@ -337,17 +301,9 @@ if __name__ == '__main__':
     dir_t = ['1202_mine']      
     way = ["0","1","2","3","4","5","6","7","8","9","10","11","12","13","14","15"]
     way_t = ["0","1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30","31","32","33","34","35","36"]
-    
-    acc_list = []
-    for i in range(60,61):
-        
-        balance_percent = i/100
-        accuracy = func_three_angle(path,dirs,way,path2,dir_t,way_t, balance_percent)
-        acc_list.append([i,accuracy])
+    balance_percent = 0.7
+    func_three_angle(path,dirs,way,path2,dir_t,way_t, balance_percent)
 
-    for element in acc_list:
-        print(element[0], element[1])
-    #print(f'accuracy : {acc_list}')
 
 '''
 
